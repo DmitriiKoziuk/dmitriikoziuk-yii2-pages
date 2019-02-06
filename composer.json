@@ -1,0 +1,34 @@
+{
+  "name": "dmitriikoziuk/yii2-pages",
+  "description": "Yii2 pages.",
+  "type": "yii2-extension",
+  "keywords": [
+    "yii2",
+    "pages"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dmitrii Koziuk",
+      "email": "dmitriikoziuk@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "yiisoft/yii2": "~2.0.0",
+    "dmitriikoziuk/yii2-base": "dev-master",
+    "dmitriikoziuk/yii2-module-manager": "dev-master",
+    "dmitriikoziuk/yii2-config-manager": "dev-master",
+    "dmitriikoziuk/yii2-custom-urls": "dev-master",
+    "dmitriikoziuk/yii2-web-backend-lock": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "DmitriiKoziuk\\yii2Pages\\": "src"
+    }
+  },
+  "extra": {
+    "bootstrap": "DmitriiKoziuk\\yii2Pages\\Bootstrap"
+  }
+}
