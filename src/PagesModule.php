@@ -8,7 +8,7 @@ use yii\base\Application as BaseApp;
 use DmitriiKoziuk\yii2ModuleManager\interfaces\ModuleInterface;
 use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
 use DmitriiKoziuk\yii2Base\helpers\FileHelper;
-use DmitriiKoziuk\yii2CustomUrls\services\UrlService;
+use DmitriiKoziuk\yii2CustomUrls\services\UrlIndexService;
 use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
 use DmitriiKoziuk\yii2Pages\services\PageService;
 
@@ -101,8 +101,8 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
             $urlHelper = $this->diContainer->get(UrlHelper::class);
             /** @var FileHelper $fileHelper */
             $fileHelper = $this->diContainer->get(FileHelper::class);
-            /** @var UrlService $urlService */
-            $urlService = $this->diContainer->get(UrlService::class);
+            /** @var UrlIndexService $urlService */
+            $urlService = $this->diContainer->get(UrlIndexService::class);
             return new PageService(
                 Yii::getAlias(self::CONTENT_STORAGE_PATH),
                 $pageRepository,

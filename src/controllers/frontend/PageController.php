@@ -26,7 +26,7 @@ class PageController extends Controller
 
     public function actionIndex(UrlData $urlData)
     {
-        $pageEntity = $this->_pageService->getPageById($urlData->entity_id);
+        $pageEntity = $this->_pageService->getPageById($urlData->getEntityId());
         if (empty($pageEntity)) {
             throw new NotFoundHttpException('Page not found.');
         }
