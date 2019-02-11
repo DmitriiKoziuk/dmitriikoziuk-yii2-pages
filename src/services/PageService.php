@@ -4,7 +4,7 @@ namespace DmitriiKoziuk\yii2Pages\services;
 use yii\db\Connection;
 use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
 use DmitriiKoziuk\yii2Base\helpers\FileHelper;
-use DmitriiKoziuk\yii2Base\services\EntityActionService;
+use DmitriiKoziuk\yii2Base\services\DBActionService;
 use DmitriiKoziuk\yii2CustomUrls\services\UrlIndexService;
 use DmitriiKoziuk\yii2CustomUrls\forms\UrlCreateForm;
 use DmitriiKoziuk\yii2CustomUrls\forms\UrlUpdateForm;
@@ -15,7 +15,7 @@ use DmitriiKoziuk\yii2Pages\forms\PageInputForm;
 use DmitriiKoziuk\yii2Pages\records\PageRecord;
 use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
 
-final class PageService extends EntityActionService
+final class PageService extends DBActionService
 {
     /**
      * @var string
