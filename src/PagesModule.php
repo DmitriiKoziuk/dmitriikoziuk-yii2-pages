@@ -18,7 +18,10 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
 
     const TRANSLATE = self::ID;
 
-    const CONTENT_STORAGE_PATH = '@frontend/storage/dk-pages/content';
+    const CONTENT_STORAGE_PATH = '@frontend' . DIRECTORY_SEPARATOR .
+        'storage' . DIRECTORY_SEPARATOR .
+        'dk-pages' . DIRECTORY_SEPARATOR .
+        'content';
 
     const FRONTEND_CONTROLLER_NAME = 'page';
 
