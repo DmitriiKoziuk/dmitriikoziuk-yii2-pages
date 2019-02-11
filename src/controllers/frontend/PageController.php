@@ -7,7 +7,7 @@ use yii\web\NotFoundHttpException;
 use DmitriiKoziuk\yii2CustomUrls\data\UrlData;
 use DmitriiKoziuk\yii2Pages\services\PageService;
 
-class PageController extends Controller
+final class PageController extends Controller
 {
     /**
      * @var PageService
