@@ -128,7 +128,7 @@ final class PageService extends EntityActionService
     private function _defineSlug(PageRecord $pageRecord): void
     {
         if (empty($pageRecord->slug)) {
-            $pageRecord->slug = $this->_urlHelper->slugFromString($pageRecord->name);
+            $pageRecord->slug = $this->_urlHelper->getSlugFromString($pageRecord->name);
         }
     }
 
