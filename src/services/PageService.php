@@ -4,17 +4,18 @@ namespace DmitriiKoziuk\yii2Pages\services;
 use yii\db\Connection;
 use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
 use DmitriiKoziuk\yii2Base\helpers\FileHelper;
-use DmitriiKoziuk\yii2Base\services\EntityActionService;
-use DmitriiKoziuk\yii2CustomUrls\services\UrlService;
+use DmitriiKoziuk\yii2Base\services\DBActionService;
+use DmitriiKoziuk\yii2CustomUrls\services\UrlIndexService;
 use DmitriiKoziuk\yii2CustomUrls\forms\UrlCreateForm;
 use DmitriiKoziuk\yii2CustomUrls\forms\UrlUpdateForm;
+use DmitriiKoziuk\yii2CustomUrls\forms\UrlDeleteForm;
 use DmitriiKoziuk\yii2Pages\PagesModule;
 use DmitriiKoziuk\yii2Pages\entities\PageEntity;
 use DmitriiKoziuk\yii2Pages\forms\PageInputForm;
 use DmitriiKoziuk\yii2Pages\records\PageRecord;
 use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
 
-final class PageService extends EntityActionService
+final class PageService extends DBActionService
 {
     /**
      * @var string
@@ -37,16 +38,16 @@ final class PageService extends EntityActionService
     private $_fileHelper;
 
     /**
-     * @var UrlService
+     * @var UrlIndexService
      */
-    private $_urlService;
+    private $_urlIndexService;
 
     public function __construct(
         string $contentStoragePath,
         PageRepository $pageRepository,
         UrlHelper $urlHelper,
         FileHelper $fileHelper,
-        UrlService $urlService,
+        UrlIndexService $urlIndexService,
         Connection $db
     ) {
         parent::__construct($db);
@@ -54,7 +55,7 @@ final class PageService extends EntityActionService
         $this->_pageRepository = $pageRepository;
         $this->_urlHelper = $urlHelper;
         $this->_fileHelper = $fileHelper;
-        $this->_urlService = $urlService;
+        $this->_urlIndexService = $urlIndexService;
     }
 
     public function createPage(PageInputForm $pageInputForm): PageEntity
@@ -78,7 +79,8 @@ final class PageService extends EntityActionService
             $pageRecord = $this->_getPageRecordById($id);
             $pageRecord->delete();
             $this->_deletePageContent($pageRecord->id);
-            $this->_urlService->deleteUrlFromIndex($pageRecord->url);
+            $urlDeleteForm = new UrlDeleteForm(['url' => $pageRecord->url]);
+            $this->_urlIndexService->deleteUrlFromIndex($urlDeleteForm);
             $this->commitTransaction();
         } catch (\Throwable $e) {
             $this->rollbackTransaction();
@@ -92,7 +94,7 @@ final class PageService extends EntityActionService
         return new PageEntity($pageRecord, $content);
     }
 
-    private function _getPageRecordById(int $pageId)
+    private function _getPageRecordById(int $pageId): PageRecord
     {
         $pageRecord = $this->_pageRepository->getById($pageId);
         if (empty($pageRecord)) {
@@ -126,7 +128,7 @@ final class PageService extends EntityActionService
     private function _defineSlug(PageRecord $pageRecord): void
     {
         if (empty($pageRecord->slug)) {
-            $pageRecord->slug = $this->_urlHelper->slugFromString($pageRecord->name);
+            $pageRecord->slug = $this->_urlHelper->getSlugFromString($pageRecord->name);
         }
     }
 
@@ -167,9 +169,9 @@ final class PageService extends EntityActionService
         $form->action_name = PagesModule::FRONTEND_CONTROLLER_ACTION;
         $form->entity_id = (string) $pageRecord->id;
         if ($isPageNewRecord) {
-            $this->_urlService->addUrlToIndex($form);
+            $this->_urlIndexService->addUrlToIndex($form);
         } else if (array_key_exists('url', $changedAttributes)) {
-            $this->_urlService->updateUrlInIndex($form);
+            $this->_urlIndexService->updateUrlInIndex($form);
         }
     }
 
