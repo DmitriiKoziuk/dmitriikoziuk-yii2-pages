@@ -4,7 +4,6 @@ namespace DmitriiKoziuk\yii2Pages\records;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use DmitriiKoziuk\yii2Pages\records\PageRecord;
 
 /**
  * PageSearch represents the model behind the search form of `DmitriiKoziuk\yii2Pages\records\Page`.
