@@ -47,6 +47,16 @@ class PageEntity
         return $this->_content;
     }
 
+    public function getMetaTitle(): string
+    {
+        return $this->_pageRecord->meta_title;
+    }
+
+    public function getMetaDescription(): string
+    {
+        return $this->_pageRecord->meta_description;
+    }
+
     public function getInputForm(): PageInputForm
     {
         $pageInputForm = new PageInputForm();
