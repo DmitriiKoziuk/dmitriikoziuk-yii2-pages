@@ -5,9 +5,12 @@ use Yii;
 use yii\di\Container;
 use yii\web\Application as WebApp;
 use yii\base\Application as BaseApp;
-use DmitriiKoziuk\yii2ModuleManager\interfaces\ModuleInterface;
+use DmitriiKoziuk\yii2Base\BaseModule;
 use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
 use DmitriiKoziuk\yii2Base\helpers\FileHelper;
+use DmitriiKoziuk\yii2ModuleManager\interfaces\ModuleInterface;
+use DmitriiKoziuk\yii2ConfigManager\ConfigManagerModule;
+use DmitriiKoziuk\yii2CustomUrls\CustomUrlsModule;
 use DmitriiKoziuk\yii2CustomUrls\services\UrlIndexService;
 use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
 use DmitriiKoziuk\yii2Pages\services\PageService;
@@ -53,7 +56,7 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
         $this->_registerClassesToDIContainer($app);
     }
 
-    public function getId(): string
+    public static function getId(): string
     {
         return self::ID;
     }
@@ -61,6 +64,15 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
     public function getBackendMenuItems(): array
     {
         return ['label' => 'Pages', 'url' => ['/' . self::ID . '/page/index']];
+    }
+
+    public static function requireOtherModulesToBeActive(): array
+    {
+        return [
+            BaseModule::class,
+            ConfigManagerModule::class,
+            CustomUrlsModule::class,
+        ];
     }
 
     /**
