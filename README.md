@@ -2,21 +2,30 @@ Yii2 Pages
 ========================
 Yii2 pages.
 
-Installation
-------------
+## Info
+
+The best practice is use this module/extension with [yii2 advanced application](https://github.com/yiisoft/yii2-app-advanced/blob/master/docs/guide/start-installation.md)
+
+## Installation
 
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
 
-Either run
+1. Either run
 
-```
-php composer.phar require dmitriikoziuk/yii2-pages
-```
+    ```
+    php composer.phar require dmitriikoziuk/yii2-pages
+    ```
+    
+    or add
+    
+    ```
+    "dmitriikoziuk/yii2-pages": "~0.2.0"
+    ```
+    
+    to the require section of your `composer.json` file.
+    
+2. Run command 
 
-or add
-
-```
-"dmitriikoziuk/yii2-pages": "~0.2.0"
-```
-
-to the require section of your `composer.json` file.
+    ```
+    /path/to/php-bin/php /path/to/yii-application/yii migrate --migrationPath=@DmitriiKoziuk/yii2Pages/migrations
+    ```
