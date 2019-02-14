@@ -1,4 +1,5 @@
 <?php
+namespace DmitriiKoziuk\yii2Pages\migrations;
 
 use yii\db\Migration;
 
