@@ -5,6 +5,7 @@ use Yii;
 use yii\di\Container;
 use yii\web\Application as WebApp;
 use yii\base\Application as BaseApp;
+use yii\console\Application as ConsoleApp;
 use DmitriiKoziuk\yii2Base\BaseModule;
 use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
 use DmitriiKoziuk\yii2Base\helpers\FileHelper;
@@ -94,6 +95,9 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
         if ($app instanceof WebApp && $app->id == $this->frontendAppId) {
             $this->controllerNamespace = __NAMESPACE__ . '\controllers\frontend';
             $this->viewPath = '@DmitriiKoziuk/yii2Pages/views/frontend';
+        }
+        if ($app instanceof ConsoleApp) {
+            $app->controllerMap['migrate']['migrationNamespaces'][] = __NAMESPACE__ . '\migrations';
         }
     }
 
