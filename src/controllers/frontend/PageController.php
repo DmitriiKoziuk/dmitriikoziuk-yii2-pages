@@ -2,6 +2,7 @@
 namespace DmitriiKoziuk\yii2Pages\controllers\frontend;
 
 use yii\base\Module;
+use yii\base\ViewNotFoundException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use DmitriiKoziuk\yii2CustomUrls\data\UrlData;
@@ -30,8 +31,14 @@ final class PageController extends Controller
         if (empty($pageEntity)) {
             throw new NotFoundHttpException('Page not found.');
         }
-        return $this->render('index', [
-            'pageEntity' => $pageEntity,
-        ]);
+        try {
+            return $this->render($pageEntity->getSlug(), [
+                'pageEntity' => $pageEntity,
+            ]);
+        } catch (ViewNotFoundException $e) {
+            return $this->render('index', [
+                'pageEntity' => $pageEntity,
+            ]);
+        }
     }
 }
