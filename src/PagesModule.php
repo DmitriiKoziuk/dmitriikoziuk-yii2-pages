@@ -8,7 +8,7 @@ use yii\base\Application as BaseApp;
 use yii\console\Application as ConsoleApp;
 use DmitriiKoziuk\yii2ModuleManager\interfaces\ModuleInterface;
 use DmitriiKoziuk\yii2ConfigManager\ConfigManagerModule;
-use DmitriiKoziuk\yii2CustomUrls\CustomUrlsModule;
+use DmitriiKoziuk\yii2UrlIndex\UrlIndexModule;
 
 class PagesModule extends \yii\base\Module implements ModuleInterface
 {
@@ -60,7 +60,7 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
     {
         return [
             ConfigManagerModule::class,
-            CustomUrlsModule::class,
+            UrlIndexModule::class,
         ];
     }
 
