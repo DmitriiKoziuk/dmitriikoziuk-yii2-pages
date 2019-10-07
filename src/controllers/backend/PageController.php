@@ -3,11 +3,11 @@
 namespace DmitriiKoziuk\yii2Pages\controllers\backend;
 
 use Yii;
-use DmitriiKoziuk\yii2Pages\entities\Page;
-use DmitriiKoziuk\yii2Pages\entities\PageSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use DmitriiKoziuk\yii2Pages\entities\PageEntity;
+use DmitriiKoziuk\yii2Pages\entities\PageEntitySearch;
 
 /**
  * PageController implements the CRUD actions for Page model.
@@ -35,7 +35,7 @@ class PageController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new PageSearch();
+        $searchModel = new PageEntitySearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -64,7 +64,7 @@ class PageController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Page();
+        $model = new PageEntity();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -113,12 +113,12 @@ class PageController extends Controller
      * Finds the Page model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Page the loaded model
+     * @return PageEntity the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Page::findOne($id)) !== null) {
+        if (($model = PageEntity::findOne($id)) !== null) {
             return $model;
         }
 
