@@ -71,7 +71,6 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
     public static function requireOtherModulesToBeActive(): array
     {
         return [
-            BaseModule::class,
             ConfigManagerModule::class,
             CustomUrlsModule::class,
         ];
