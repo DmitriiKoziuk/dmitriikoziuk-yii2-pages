@@ -2,31 +2,19 @@
 
 namespace DmitriiKoziuk\yii2Pages;
 
-use Yii;
 use yii\di\Container;
 use yii\web\Application as WebApp;
 use yii\base\Application as BaseApp;
 use yii\console\Application as ConsoleApp;
-use DmitriiKoziuk\yii2Base\BaseModule;
-use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
-use DmitriiKoziuk\yii2Base\helpers\FileHelper;
 use DmitriiKoziuk\yii2ModuleManager\interfaces\ModuleInterface;
 use DmitriiKoziuk\yii2ConfigManager\ConfigManagerModule;
-use DmitriiKoziuk\yii2UrlIndex\services\UrlIndexService;
 use DmitriiKoziuk\yii2CustomUrls\CustomUrlsModule;
-use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
-use DmitriiKoziuk\yii2Pages\services\PageService;
 
 class PagesModule extends \yii\base\Module implements ModuleInterface
 {
     const ID = 'dk-pages';
 
     const TRANSLATE = self::ID;
-
-    const CONTENT_STORAGE_PATH = '@frontend' . DIRECTORY_SEPARATOR .
-        'storage' . DIRECTORY_SEPARATOR .
-        'dk-pages' . DIRECTORY_SEPARATOR .
-        'content';
 
     const FRONTEND_CONTROLLER_NAME = 'page';
 
@@ -112,24 +100,5 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
 
     private function _registerClassesToDIContainer(BaseApp $app): void
     {
-        $this->diContainer->setSingleton(PageRepository::class);
-        $this->diContainer->setSingleton(PageService::class, function () use ($app) {
-            /** @var PageRepository $pageRepository */
-            $pageRepository = $this->diContainer->get(PageRepository::class);
-            /** @var UrlHelper $urlHelper */
-            $urlHelper = $this->diContainer->get(UrlHelper::class);
-            /** @var FileHelper $fileHelper */
-            $fileHelper = $this->diContainer->get(FileHelper::class);
-            /** @var UrlIndexService $urlService */
-            $urlService = $this->diContainer->get(UrlIndexService::class);
-            return new PageService(
-                Yii::getAlias(self::CONTENT_STORAGE_PATH),
-                $pageRepository,
-                $urlHelper,
-                $fileHelper,
-                $urlService,
-                $app->db
-            );
-        });
     }
 }
