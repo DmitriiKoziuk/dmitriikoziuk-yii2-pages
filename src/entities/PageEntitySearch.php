@@ -4,12 +4,12 @@ namespace DmitriiKoziuk\yii2Pages\entities;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use DmitriiKoziuk\yii2Pages\entities\Page;
+use DmitriiKoziuk\yii2Pages\entities\PageEntity;
 
 /**
  * PageSearch represents the model behind the search form of `DmitriiKoziuk\yii2Pages\entities\Page`.
  */
-class PageSearch extends Page
+class PageEntitySearch extends PageEntity
 {
     /**
      * {@inheritdoc}
@@ -40,7 +40,7 @@ class PageSearch extends Page
      */
     public function search($params)
     {
-        $query = Page::find();
+        $query = PageEntity::find();
 
         // add conditions that should always apply here
 

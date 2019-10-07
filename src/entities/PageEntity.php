@@ -14,7 +14,7 @@ use yii\db\ActiveRecord;
  * @property string $meta_description
  * @property string $content
  */
-class Page extends ActiveRecord
+class PageEntity extends ActiveRecord
 {
     /**
      * {@inheritdoc}
