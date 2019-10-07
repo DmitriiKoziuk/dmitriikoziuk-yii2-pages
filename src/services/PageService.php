@@ -1,14 +1,14 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace DmitriiKoziuk\yii2Pages\services;
 
 use yii\db\Connection;
 use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
 use DmitriiKoziuk\yii2Base\helpers\FileHelper;
 use DmitriiKoziuk\yii2Base\services\DBActionService;
-use DmitriiKoziuk\yii2CustomUrls\services\UrlIndexService;
-use DmitriiKoziuk\yii2CustomUrls\forms\UrlCreateForm;
-use DmitriiKoziuk\yii2CustomUrls\forms\UrlUpdateForm;
-use DmitriiKoziuk\yii2CustomUrls\forms\UrlDeleteForm;
+use DmitriiKoziuk\yii2UrlIndex\services\UrlIndexService;
+use DmitriiKoziuk\yii2UrlIndex\forms\UrlCreateForm;
+use DmitriiKoziuk\yii2UrlIndex\forms\UrlUpdateForm;
 use DmitriiKoziuk\yii2Pages\PagesModule;
 use DmitriiKoziuk\yii2Pages\entities\PageEntity;
 use DmitriiKoziuk\yii2Pages\forms\PageInputForm;
