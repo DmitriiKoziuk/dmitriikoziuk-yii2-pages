@@ -30,7 +30,7 @@ class PageEntity extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'meta_title', 'meta_description'], 'required'],
+            [['name'], 'required'],
             [['is_active'], 'integer'],
             [['content'], 'string'],
             [['name'], 'string', 'max' => 150],
