@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model DmitriiKoziuk\yii2Pages\entities\Page */
+/* @var $model DmitriiKoziuk\yii2Pages\entities\PageEntity */
 
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Pages', 'url' => ['index']];
