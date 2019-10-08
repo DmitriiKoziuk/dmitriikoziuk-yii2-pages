@@ -25,7 +25,8 @@
   },
   "autoload": {
     "psr-4": {
-      "DmitriiKoziuk\\yii2Pages\\": "src"
+      "DmitriiKoziuk\\yii2Pages\\": "src",
+      "DmitriiKoziuk\\yii2Pages\\tests\\": "tests"
     }
   },
   "extra": {
