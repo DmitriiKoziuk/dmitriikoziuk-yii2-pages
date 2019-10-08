@@ -17,12 +17,12 @@ class m190122_143041_create_dk_pages_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->pagesTable, [
-            'id' => $this->primaryKey(),
-            'name' => $this->string(150)->notNull(),
-            'is_active' => $this->boolean()->notNull()->defaultValue(0),
-            'meta_title' => $this->string(255)->notNull(),
-            'meta_description' => $this->string(255)->notNull(),
-            'content' => $this->text()->null()->defaultValue(NULL),
+            'id'               => $this->primaryKey(),
+            'name'             => $this->string(150)->notNull(),
+            'is_active'        => $this->boolean()->notNull()->defaultValue(0),
+            'meta_title'       => $this->string(255)->null()->defaultValue(NULL),
+            'meta_description' => $this->string(255)->null()->defaultValue(NULL),
+            'content'          => $this->text()->null()->defaultValue(NULL),
         ]);
         $this->createIndex(
             'idx_dk_pages_name',
