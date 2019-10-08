@@ -9,6 +9,7 @@ use yii\console\Application as ConsoleApp;
 use DmitriiKoziuk\yii2ModuleManager\interfaces\ModuleInterface;
 use DmitriiKoziuk\yii2ConfigManager\ConfigManagerModule;
 use DmitriiKoziuk\yii2UrlIndex\UrlIndexModule;
+use DmitriiKoziuk\yii2UrlIndex\services\UrlIndexService;
 use DmitriiKoziuk\yii2Pages\services\PageService;
 use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
 
@@ -102,8 +103,15 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
 
     private function registerClassesToDIContainer(BaseApp $app): void
     {
-        $this->diContainer->setSingleton(PageService::class, function () {
-            return new PageService(new PageRepository());
+        /** @var UrlIndexService $urlIndexService */
+        $urlIndexService = $this->diContainer->get(UrlIndexService::class);
+        $this->diContainer->setSingleton(PageService::class, function () use (
+            $urlIndexService
+        ) {
+            return new PageService(
+                new PageRepository(),
+                $urlIndexService
+            );
         });
     }
 }
