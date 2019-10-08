@@ -43,9 +43,9 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
     {
         /** @var BaseApp $app */
         $app = $this->module;
-        $this->_initLocalProperties($app);
-        $this->_registerTranslation($app);
-        $this->_registerClassesToDIContainer($app);
+        $this->initLocalProperties($app);
+        $this->registerTranslation($app);
+        $this->registerClassesToDIContainer($app);
     }
 
     public static function getId(): string
@@ -70,7 +70,7 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
      * @param BaseApp $app
      * @throws \InvalidArgumentException
      */
-    private function _initLocalProperties(BaseApp $app): void
+    private function initLocalProperties(BaseApp $app): void
     {
         if (empty($this->backendAppId)) {
             throw new \InvalidArgumentException('Property backendAppId not set.');
@@ -91,7 +91,7 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
         }
     }
 
-    private function _registerTranslation(BaseApp $app): void
+    private function registerTranslation(BaseApp $app): void
     {
         $app->i18n->translations[self::TRANSLATE] = [
             'class'          => 'yii\i18n\PhpMessageSource',
@@ -100,7 +100,7 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
         ];
     }
 
-    private function _registerClassesToDIContainer(BaseApp $app): void
+    private function registerClassesToDIContainer(BaseApp $app): void
     {
         $this->diContainer->setSingleton(PageService::class, function () {
             return new PageService(new PageRepository());
