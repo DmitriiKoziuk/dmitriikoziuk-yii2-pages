@@ -3,6 +3,7 @@
 namespace DmitriiKoziuk\yii2Pages;
 
 use yii\di\Container;
+use yii\db\Connection;
 use yii\web\Application as WebApp;
 use yii\base\Application as BaseApp;
 use yii\console\Application as ConsoleApp;
@@ -27,6 +28,11 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
      * @var Container
      */
     public $diContainer;
+
+    /**
+     * @var Connection
+     */
+    public $dbConnection;
 
     /**
      * Overwrite this param if you backend app id is different from default.
@@ -110,7 +116,8 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
         ) {
             return new PageService(
                 new PageRepository(),
-                $urlIndexService
+                $urlIndexService,
+                $this->dbConnection
             );
         });
     }
