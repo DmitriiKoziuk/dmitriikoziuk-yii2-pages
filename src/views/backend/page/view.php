@@ -43,6 +43,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'meta_title',
             'meta_description',
             'content:ntext',
+            'created_at:datetime',
+            'updated_at:datetime',
         ],
     ]) ?>
 
