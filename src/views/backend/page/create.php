@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model DmitriiKoziuk\yii2Pages\entities\PageEntity */
+/* @var $model DmitriiKoziuk\yii2Pages\forms\PageCreateForm */
 
 $this->title = 'Create Page';
 $this->params['breadcrumbs'][] = ['label' => 'Pages', 'url' => ['index']];

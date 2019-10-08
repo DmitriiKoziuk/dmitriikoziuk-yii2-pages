@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DmitriiKoziuk\yii2Pages\controllers\backend;
 
@@ -6,14 +6,33 @@ use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use DmitriiKoziuk\yii2Base\exceptions\DataNotValidException;
+use DmitriiKoziuk\yii2Base\exceptions\ExternalComponentException;
 use DmitriiKoziuk\yii2Pages\entities\PageEntity;
 use DmitriiKoziuk\yii2Pages\entities\PageEntitySearch;
+use DmitriiKoziuk\yii2Pages\forms\PageCreateForm;
+use DmitriiKoziuk\yii2Pages\services\PageService;
 
 /**
  * PageController implements the CRUD actions for Page model.
  */
 class PageController extends Controller
 {
+    /**
+     * @var PageService
+     */
+    private $pageService;
+
+    public function __construct(
+        $id,
+        $module,
+        PageService $pageService,
+        $config = []
+    ) {
+        parent::__construct($id, $module, $config);
+        $this->pageService = $pageService;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -61,13 +80,16 @@ class PageController extends Controller
      * Creates a new Page model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws DataNotValidException
+     * @throws ExternalComponentException
      */
     public function actionCreate()
     {
-        $model = new PageEntity();
+        $model = new PageCreateForm();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            $pageUpdateForm = $this->pageService->createPage($model);
+            return $this->redirect(['view', 'id' => $pageUpdateForm->id]);
         }
 
         return $this->render('create', [
