@@ -33,13 +33,19 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'name',
             [
-                'label' => 'url',
+                'label' => 'Url',
                 'value' => function ($model) {
                     /** @var PageEntity $model */
                     return $model->url->url;
                 },
             ],
-            'is_active',
+            [
+                'label' => 'Status',
+                'value' => function ($model) {
+                    /** @var PageEntity $model */
+                    return empty($model->is_active) ? 'Not active' : 'Active';
+                },
+            ],
             'meta_title',
             'meta_description',
             'content:ntext',
