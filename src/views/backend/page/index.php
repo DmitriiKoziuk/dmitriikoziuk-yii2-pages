@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use DmitriiKoziuk\yii2Pages\entities\PageEntity;
 
 /* @var $this yii\web\View */
 /* @var $searchModel DmitriiKoziuk\yii2Pages\entities\PageEntitySearch */
@@ -28,6 +29,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'name',
+            [
+                'attribute' => 'url',
+                'content' => function ($model) {
+                    /** @var PageEntity $model */
+                    return $model->url->url;
+                },
+            ],
             'is_active',
             'meta_title',
             'meta_description',
