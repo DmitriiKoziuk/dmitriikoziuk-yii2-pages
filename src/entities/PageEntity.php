@@ -2,8 +2,11 @@
 
 namespace DmitriiKoziuk\yii2Pages\entities;
 
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
+use DmitriiKoziuk\yii2Pages\PagesModule;
+use DmitriiKoziuk\yii2UrlIndex\entities\UrlEntity;
 
 /**
  * This is the model class for table "{{%dk_pages}}".
@@ -16,6 +19,8 @@ use yii\behaviors\TimestampBehavior;
  * @property string $content
  * @property int    $created_at
  * @property int    $updated_at
+ *
+ * @property UrlEntity $url
  */
 class PageEntity extends ActiveRecord
 {
@@ -63,5 +68,15 @@ class PageEntity extends ActiveRecord
             'meta_description' => 'Meta Description',
             'content' => 'Content',
         ];
+    }
+
+    public function getUrl(): ActiveQuery
+    {
+        return $this->hasOne(UrlEntity::class, ['entity_id' => 'id'])
+            ->andWhere([
+                'module_name'     => PagesModule::ID,
+                'controller_name' => PagesModule::FRONTEND_CONTROLLER_NAME,
+                'action_name'     => PagesModule::FRONTEND_CONTROLLER_ACTION,
+            ]);
     }
 }
