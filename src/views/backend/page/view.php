@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use DmitriiKoziuk\yii2Pages\entities\PageEntity;
 
 /* @var $this yii\web\View */
 /* @var $model DmitriiKoziuk\yii2Pages\entities\PageEntity */
@@ -31,6 +32,13 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'name',
+            [
+                'label' => 'url',
+                'value' => function ($model) {
+                    /** @var PageEntity $model */
+                    return $model->url->url;
+                },
+            ],
             'is_active',
             'meta_title',
             'meta_description',
