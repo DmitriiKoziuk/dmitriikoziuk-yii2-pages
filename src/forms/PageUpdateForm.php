@@ -6,6 +6,10 @@ class PageUpdateForm extends PageCreateForm
 {
     public $id;
 
+    public $created_at;
+
+    public $updated_at;
+
     public function rules()
     {
         $rules = parent::rules();
@@ -13,7 +17,7 @@ class PageUpdateForm extends PageCreateForm
             ['id'], 'required'
         ];
         $rules[] = [
-            ['id'], 'integer'
+            ['id', 'created_at', 'updated_at'], 'integer'
         ];
         return $rules;
     }

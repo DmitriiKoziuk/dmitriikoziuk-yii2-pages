@@ -51,12 +51,18 @@ class PageServiceCreatePageMethodTest extends Unit
      */
     public function testExecuteSuccessful()
     {
+        $this->tester->dontSeeRecord(PageEntity::class, ['name' => 'Hello']);
+        $this->tester->dontSeeRecord(UrlEntity::class, [
+            'url' => '/hello',
+        ]);
+
         $pageCreateForm = new PageCreateForm([
             'name' => 'Hello',
         ]);
         /** @var PageService $pageService */
         $pageService = Yii::$container->get(PageService::class);
         $serviceReturnData = $pageService->createPage($pageCreateForm);
+
         $this->tester->seeRecord(PageEntity::class, ['name' => 'Hello']);
         $this->tester->seeRecord(UrlEntity::class, [
             'url'             => '/hello',
@@ -68,7 +74,9 @@ class PageServiceCreatePageMethodTest extends Unit
         $this->assertInstanceOf(PageUpdateForm::class, $serviceReturnData);
         $this->assertEquals(
             $pageCreateForm->getAttributes(),
-            $serviceReturnData->getAttributes(null, ['id'])
+            $serviceReturnData->getAttributes(null, [
+                'id', 'created_at', 'updated_at'
+            ])
         );
     }
 }

@@ -23,6 +23,8 @@ class m190122_143041_create_dk_pages_table extends Migration
             'meta_title'       => $this->string(255)->null()->defaultValue(NULL),
             'meta_description' => $this->string(255)->null()->defaultValue(NULL),
             'content'          => $this->text()->null()->defaultValue(NULL),
+            'created_at'       => $this->integer()->notNull(),
+            'updated_at'       => $this->integer()->notNull(),
         ]);
         $this->createIndex(
             'idx_dk_pages_name',

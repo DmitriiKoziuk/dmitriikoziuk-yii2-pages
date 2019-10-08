@@ -3,16 +3,19 @@
 namespace DmitriiKoziuk\yii2Pages\entities;
 
 use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "{{%dk_pages}}".
  *
- * @property int $id
+ * @property int    $id
  * @property string $name
- * @property int $is_active
+ * @property int    $is_active
  * @property string $meta_title
  * @property string $meta_description
  * @property string $content
+ * @property int    $created_at
+ * @property int    $updated_at
  */
 class PageEntity extends ActiveRecord
 {
@@ -22,6 +25,13 @@ class PageEntity extends ActiveRecord
     public static function tableName()
     {
         return '{{%dk_pages}}';
+    }
+
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::class,
+        ];
     }
 
     /**
@@ -36,6 +46,7 @@ class PageEntity extends ActiveRecord
             [['name'], 'string', 'max' => 150],
             [['meta_title', 'meta_description'], 'string', 'max' => 255],
             [['name'], 'unique'],
+            [['created_at', 'updated_at'], 'integer'],
         ];
     }
 
