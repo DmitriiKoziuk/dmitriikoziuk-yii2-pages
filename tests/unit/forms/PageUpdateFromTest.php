@@ -38,7 +38,10 @@ class PageUpdateFromTest extends Unit
     {
         $form = new PageUpdateForm($attributes);
         $this->assertTrue($form->validate());
-        $this->assertEquals($attributes, $form->getAttributes());
+        $this->assertEquals($attributes, $form->getAttributes(
+            null,
+            ['created_at', 'updated_at']
+        ));
     }
 
     /**
