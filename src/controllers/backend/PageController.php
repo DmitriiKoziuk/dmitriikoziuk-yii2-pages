@@ -118,15 +118,15 @@ class PageController extends Controller
     }
 
     /**
-     * Deletes an existing Page model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @param $id
+     * @return \yii\web\Response
+     * @throws ExternalComponentException
+     * @throws \DmitriiKoziuk\yii2Pages\exceptions\PageNotFoundException
+     * @throws \Throwable
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $this->pageService->deletePage((int) $id);
 
         return $this->redirect(['index']);
     }
