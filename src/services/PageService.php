@@ -10,9 +10,11 @@ use DmitriiKoziuk\yii2Base\exceptions\DataNotValidException;
 use DmitriiKoziuk\yii2Base\exceptions\ExternalComponentException;
 use DmitriiKoziuk\yii2UrlIndex\forms\UrlCreateForm;
 use DmitriiKoziuk\yii2UrlIndex\forms\UrlUpdateForm;
+use DmitriiKoziuk\yii2UrlIndex\forms\RemoveEntityForm;
 use DmitriiKoziuk\yii2UrlIndex\interfaces\UrlIndexServiceInterface;
 use DmitriiKoziuk\yii2Pages\PagesModule;
 use DmitriiKoziuk\yii2Pages\exceptions\PageCreateFormNotValid;
+use DmitriiKoziuk\yii2Pages\exceptions\PageNotFoundException;
 use DmitriiKoziuk\yii2Pages\interfaces\PageRepositoryInterface;
 use DmitriiKoziuk\yii2Pages\interfaces\PageServiceInterface;
 use DmitriiKoziuk\yii2Pages\entities\PageEntity;
@@ -69,6 +71,33 @@ class PageService extends DBActionService implements PageServiceInterface
         }
     }
 
+    /**
+     * @param int $pageId
+     * @throws ExternalComponentException
+     * @throws PageNotFoundException
+     * @throws \Throwable
+     */
+    public function deletePage(int $pageId): void
+    {
+        $pageEntity = PageEntity::find()
+            ->where(['id' => $pageId])
+            ->one();
+
+        if (empty($pageEntity)) {
+            throw new PageNotFoundException("Page with id '{$pageId}' not found.");
+        }
+
+        try {
+            $this->beginTransaction();
+            $pageEntity->delete();
+            $this->removePageUrlFromIndex($pageEntity->id);
+            $this->commitTransaction();
+        } catch (\Exception $e) {
+            $this->rollbackTransaction();
+            throw $e;
+        }
+    }
+
     private function savePage(PageCreateForm $pageCreateForm): PageEntity
     {
         $pageEntity = new PageEntity($pageCreateForm->getAttributes());
@@ -85,5 +114,15 @@ class PageService extends DBActionService implements PageServiceInterface
         $urlCreateForm->action_name = PagesModule::FRONTEND_CONTROLLER_ACTION;
         $urlCreateForm->entity_id = (string) $pageId;
         return $this->urlIndexService->addUrl($urlCreateForm);
+    }
+
+    private function removePageUrlFromIndex(int $pageId): void
+    {
+        $form = new RemoveEntityForm();
+        $form->module_name = PagesModule::ID;
+        $form->controller_name = PagesModule::FRONTEND_CONTROLLER_NAME;
+        $form->action_name = PagesModule::FRONTEND_CONTROLLER_ACTION;
+        $form->entity_id = (string) $pageId;
+        $this->urlIndexService->removeEntityUrl($form);
     }
 }
