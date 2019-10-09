@@ -131,6 +131,21 @@ class PageService extends DBActionService implements PageServiceInterface
         return new PageUpdateForm();
     }
 
+    /**
+     * @param int $pageId
+     * @return PageUpdateForm
+     * @throws PageNotFoundException
+     */
+    public function getPageById(int $pageId): PageUpdateForm
+    {
+        $pageEntity = $this->pageRepository->getPageById($pageId);
+        if (is_null($pageEntity)) {
+            throw new PageNotFoundException("Page with id '{$pageId}' not found. Nothing to update.");
+        }
+
+        return new PageUpdateForm($pageEntity->getAttributes());
+    }
+
     private function savePage(PageCreateForm $pageCreateForm): PageEntity
     {
         $pageEntity = new PageEntity($pageCreateForm->getAttributes());
