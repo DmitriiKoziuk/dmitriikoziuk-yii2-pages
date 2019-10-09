@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use DmitriiKoziuk\yii2Pages\forms\PageCreateForm;
 
 /* @var $this yii\web\View */
 /* @var $model DmitriiKoziuk\yii2Pages\forms\PageCreateForm|DmitriiKoziuk\yii2Pages\forms\PageUpdateForm */
@@ -14,11 +15,14 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'is_active')->textInput() ?>
+    <?= $form->field($model, 'is_active')->dropDownList([
+        PageCreateForm::NOT_ACTIVE => 'Not active',
+        PageCreateForm::ACTIVE => 'Active',
+    ]) ?>
 
     <?= $form->field($model, 'meta_title')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'meta_description')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'meta_description')->textarea(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'content')->textarea(['rows' => 6]) ?>
 
