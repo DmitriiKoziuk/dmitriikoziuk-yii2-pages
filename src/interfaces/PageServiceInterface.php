@@ -8,4 +8,6 @@ use DmitriiKoziuk\yii2Pages\forms\PageUpdateForm;
 interface PageServiceInterface
 {
     public function createPage(PageCreateForm $pageCreateForm): PageUpdateForm;
+
+    public function deletePage(int $pageId): void;
 }
