@@ -12,4 +12,6 @@ interface PageServiceInterface
     public function updatePage(PageUpdateForm $pageUpdateForm): PageUpdateForm;
 
     public function deletePage(int $pageId): void;
+
+    public function getPageById(int $pageId): PageUpdateForm;
 }
