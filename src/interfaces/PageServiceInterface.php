@@ -9,5 +9,7 @@ interface PageServiceInterface
 {
     public function createPage(PageCreateForm $pageCreateForm): PageUpdateForm;
 
+    public function updatePage(PageUpdateForm $pageUpdateForm): PageUpdateForm;
+
     public function deletePage(int $pageId): void;
 }
