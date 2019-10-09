@@ -11,10 +11,12 @@ use DmitriiKoziuk\yii2Base\exceptions\ExternalComponentException;
 use DmitriiKoziuk\yii2UrlIndex\forms\UrlCreateForm;
 use DmitriiKoziuk\yii2UrlIndex\forms\UrlUpdateForm;
 use DmitriiKoziuk\yii2UrlIndex\forms\RemoveEntityForm;
+use DmitriiKoziuk\yii2UrlIndex\forms\UpdateEntityUrlForm;
 use DmitriiKoziuk\yii2UrlIndex\interfaces\UrlIndexServiceInterface;
 use DmitriiKoziuk\yii2Pages\PagesModule;
 use DmitriiKoziuk\yii2Pages\exceptions\PageCreateFormNotValid;
 use DmitriiKoziuk\yii2Pages\exceptions\PageNotFoundException;
+use DmitriiKoziuk\yii2Pages\exceptions\PageUpdateFormNotValidException;
 use DmitriiKoziuk\yii2Pages\interfaces\PageRepositoryInterface;
 use DmitriiKoziuk\yii2Pages\interfaces\PageServiceInterface;
 use DmitriiKoziuk\yii2Pages\entities\PageEntity;
@@ -98,6 +100,37 @@ class PageService extends DBActionService implements PageServiceInterface
         }
     }
 
+    public function updatePage(PageUpdateForm $pageUpdateForm): PageUpdateForm
+    {
+        $this->validateModels(
+            [$pageUpdateForm],
+            new PageUpdateFormNotValidException('Page update form not valid.')
+        );
+
+        $pageEntity = $this->pageRepository->getPageById($pageUpdateForm->id);
+        if (is_null($pageEntity)) {
+            throw new PageNotFoundException("Page with id '{$pageUpdateForm->id}' not found. Nothing to update.");
+        }
+
+        try {
+            $this->beginTransaction();
+            $pageEntity->setAttributes(
+                $pageUpdateForm->getAttributes(
+                    null,
+                    ['id', 'created_at', 'updated_at']
+                )
+            );
+            $this->pageRepository->save($pageEntity);
+            $this->updatePageUrlInIndex($pageEntity->name, $pageEntity->id);
+            $this->commitTransaction();
+        } catch (\Exception $e) {
+            $this->rollbackTransaction();
+            throw $e;
+        }
+
+        return new PageUpdateForm();
+    }
+
     private function savePage(PageCreateForm $pageCreateForm): PageEntity
     {
         $pageEntity = new PageEntity($pageCreateForm->getAttributes());
@@ -124,5 +157,16 @@ class PageService extends DBActionService implements PageServiceInterface
         $form->action_name = PagesModule::FRONTEND_CONTROLLER_ACTION;
         $form->entity_id = (string) $pageId;
         $this->urlIndexService->removeEntityUrl($form);
+    }
+
+    private function updatePageUrlInIndex(string $pageName, int $pageId): UrlUpdateForm
+    {
+        $form = new UpdateEntityUrlForm();
+        $form->url = '/' . UrlHelper::getSlugFromString($pageName);
+        $form->module_name = PagesModule::ID;
+        $form->controller_name = PagesModule::FRONTEND_CONTROLLER_NAME;
+        $form->action_name = PagesModule::FRONTEND_CONTROLLER_ACTION;
+        $form->entity_id = (string) $pageId;
+        return $this->urlIndexService->updateEntityUrl($form);
     }
 }
