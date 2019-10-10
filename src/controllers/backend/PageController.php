@@ -12,6 +12,7 @@ use DmitriiKoziuk\yii2Pages\entities\PageEntity;
 use DmitriiKoziuk\yii2Pages\entities\PageEntitySearch;
 use DmitriiKoziuk\yii2Pages\forms\PageCreateForm;
 use DmitriiKoziuk\yii2Pages\services\PageService;
+use DmitriiKoziuk\yii2Pages\exceptions\PageNotFoundException;
 
 /**
  * PageController implements the CRUD actions for Page model.
@@ -40,7 +41,7 @@ class PageController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
                 ],
@@ -98,17 +99,21 @@ class PageController extends Controller
     }
 
     /**
-     * Updates an existing Page model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws PageNotFoundException
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        try {
+            $model = $this->pageService->getPageById((int) $id);
+        } catch (PageNotFoundException $e) {
+            throw new NotFoundHttpException("Page with id '{$id}' not found.");
+        }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            $model = $this->pageService->updatePage($model);
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -121,7 +126,7 @@ class PageController extends Controller
      * @param $id
      * @return \yii\web\Response
      * @throws ExternalComponentException
-     * @throws \DmitriiKoziuk\yii2Pages\exceptions\PageNotFoundException
+     * @throws PageNotFoundException
      * @throws \Throwable
      */
     public function actionDelete($id)
