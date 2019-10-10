@@ -86,7 +86,7 @@ class PageServiceUpdatePageMethodTest extends Unit
         /** @var PageService $pageService */
         $pageService = Yii::$container->get(PageService::class);
         $form = new PageUpdateForm($updatedPageAttributes);
-        $pageService->updatePage($form);
+        $returnData = $pageService->updatePage($form);
 
         $this->tester->seeRecord(PageEntity::class, $updatedPageAttributes);
         $this->tester->seeRecord(UrlEntity::class, [
@@ -96,5 +96,11 @@ class PageServiceUpdatePageMethodTest extends Unit
             'action_name' => PagesModule::FRONTEND_CONTROLLER_ACTION,
             'entity_id' => '1',
         ]);
+        $this->assertNotEmpty($returnData);
+        $this->assertInstanceOf(PageUpdateForm::class, $returnData);
+        $this->assertEquals(
+            $updatedPageAttributes,
+            $returnData->getAttributes(['id', 'name'])
+        );
     }
 }

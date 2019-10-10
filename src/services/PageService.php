@@ -128,7 +128,7 @@ class PageService extends DBActionService implements PageServiceInterface
             throw $e;
         }
 
-        return new PageUpdateForm();
+        return $pageUpdateForm;
     }
 
     /**
