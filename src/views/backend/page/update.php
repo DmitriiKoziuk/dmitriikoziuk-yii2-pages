@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model DmitriiKoziuk\yii2Pages\entities\PageEntity */
+/* @var $model DmitriiKoziuk\yii2Pages\forms\PageUpdateForm */
 
 $this->title = 'Update Page: ' . $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Pages', 'url' => ['index']];

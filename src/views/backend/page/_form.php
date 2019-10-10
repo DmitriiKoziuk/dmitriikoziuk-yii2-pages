@@ -3,9 +3,10 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use DmitriiKoziuk\yii2Pages\forms\PageCreateForm;
+use DmitriiKoziuk\yii2Pages\forms\PageUpdateForm;
 
 /* @var $this yii\web\View */
-/* @var $model DmitriiKoziuk\yii2Pages\forms\PageCreateForm|DmitriiKoziuk\yii2Pages\forms\PageUpdateForm */
+/* @var $model PageCreateForm|PageUpdateForm */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
