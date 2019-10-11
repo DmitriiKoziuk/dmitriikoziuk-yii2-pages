@@ -7,7 +7,7 @@ use yii\db\Migration;
 /**
  * Handles the creation of table `dk_pages`.
  */
-class m190122_143041_create_dk_pages_table extends Migration
+class m190904_140454_create_dk_pages_table extends Migration
 {
     private $pagesTable = '{{%dk_pages}}';
 
