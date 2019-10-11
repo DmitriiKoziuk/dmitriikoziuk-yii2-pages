@@ -16,14 +16,6 @@ The preferred way to install this extension is through [composer](http://getcomp
     php composer.phar require dmitriikoziuk/yii2-pages
     ```
     
-    or add
-    
-    ```
-    "dmitriikoziuk/yii2-pages": "~0.2.0"
-    ```
-    
-    to the require section of your `composer.json` file.
-    
 2. Run command 
 
     ```
