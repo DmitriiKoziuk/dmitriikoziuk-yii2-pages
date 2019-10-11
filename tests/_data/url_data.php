@@ -16,4 +16,15 @@ return [
         'created_at' => '1392559490',
         'updated_at' => '1392559490',
     ],
+    [
+        'id' => 1,
+        'url' => '/Not-active-page',
+        'redirect_to_url' => null,
+        'module_name' => PagesModule::ID,
+        'controller_name' => PagesModule::FRONTEND_CONTROLLER_NAME,
+        'action_name' => PagesModule::FRONTEND_CONTROLLER_ACTION,
+        'entity_id' => '2',
+        'created_at' => '1392559490',
+        'updated_at' => '1392559490',
+    ],
 ];
