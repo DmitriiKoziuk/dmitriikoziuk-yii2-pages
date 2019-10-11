@@ -1,44 +1,50 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace DmitriiKoziuk\yii2Pages\controllers\frontend;
 
-use yii\base\Module;
-use yii\base\ViewNotFoundException;
 use yii\web\Controller;
+use yii\web\GoneHttpException;
 use yii\web\NotFoundHttpException;
-use DmitriiKoziuk\yii2CustomUrls\data\UrlData;
+use DmitriiKoziuk\yii2UrlIndex\forms\UrlUpdateForm;
+use DmitriiKoziuk\yii2Pages\forms\PageCreateForm;
 use DmitriiKoziuk\yii2Pages\services\PageService;
+use DmitriiKoziuk\yii2Pages\exceptions\PageNotFoundException;
 
 final class PageController extends Controller
 {
     /**
      * @var PageService
      */
-    private $_pageService;
+    private $pageService;
 
     public function __construct(
-        string $id,
-        Module $module,
+        $id,
+        $module,
         PageService $pageService,
-        array $config = []
+        $config = []
     ) {
         parent::__construct($id, $module, $config);
-        $this->_pageService = $pageService;
+        $this->pageService = $pageService;
     }
 
-    public function actionIndex(UrlData $urlData)
+    /**
+     * @param UrlUpdateForm $url
+     * @return string
+     * @throws GoneHttpException
+     * @throws NotFoundHttpException
+     */
+    public function actionIndex(UrlUpdateForm $url)
     {
-        $pageEntity = $this->_pageService->getPageById($urlData->getEntityId());
-        if (empty($pageEntity)) {
-            throw new NotFoundHttpException('Page not found.');
-        }
         try {
-            return $this->render($pageEntity->getSlug(), [
-                'pageEntity' => $pageEntity,
-            ]);
-        } catch (ViewNotFoundException $e) {
-            return $this->render('index', [
-                'pageEntity' => $pageEntity,
-            ]);
+            $page = $this->pageService->getPageById((int) $url->entity_id);
+        } catch (PageNotFoundException $e) {
+            throw new NotFoundHttpException('Page not found');
         }
+        if ($page->is_active === PageCreateForm::NOT_ACTIVE) {
+            throw new GoneHttpException('Page are not accessible in this time.');
+        }
+        return $this->render('index', [
+            'page' => $page,
+        ]);
     }
 }

@@ -26,6 +26,7 @@ class Bootstrap implements BootstrapInterface
             return [
                 'class' => PagesModule::class,
                 'diContainer' => Yii::$container,
+                'dbConnection' => Yii::$app->db,
                 'backendAppId' => $configService->getValue(
                     ConfigManagerModule::GENERAL_CONFIG_NAME,
                     'backendAppId'

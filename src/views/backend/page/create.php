@@ -1,15 +1,12 @@
 <?php
 
 use yii\helpers\Html;
-use DmitriiKoziuk\yii2Pages\PagesModule;
 
-/**
- * @var $this yii\web\View
- * @var $pageInputForm \DmitriiKoziuk\yii2Pages\forms\PageInputForm
- */
+/* @var $this yii\web\View */
+/* @var $model DmitriiKoziuk\yii2Pages\forms\PageCreateForm */
 
-$this->title = Yii::t(PagesModule::TRANSLATE, 'Create Page');
-$this->params['breadcrumbs'][] = ['label' => Yii::t(PagesModule::TRANSLATE, 'Pages'), 'url' => ['index']];
+$this->title = 'Create Page';
+$this->params['breadcrumbs'][] = ['label' => 'Pages', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="page-create">
@@ -17,7 +14,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <?= $this->render('_form', [
-        'pageInputForm' => $pageInputForm,
+        'model' => $model,
     ]) ?>
 
 </div>

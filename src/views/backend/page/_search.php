@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model DmitriiKoziuk\yii2Pages\records\PageRecordSearch */
+/* @var $model DmitriiKoziuk\yii2Pages\entities\PageEntitySearch */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -19,19 +19,17 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'name') ?>
 
-    <?= $form->field($model, 'slug') ?>
-
-    <?= $form->field($model, 'url') ?>
-
     <?= $form->field($model, 'is_active') ?>
 
-    <?php // echo $form->field($model, 'meta_title') ?>
+    <?= $form->field($model, 'meta_title') ?>
 
-    <?php // echo $form->field($model, 'meta_description') ?>
+    <?= $form->field($model, 'meta_description') ?>
+
+    <?php // echo $form->field($model, 'content') ?>
 
     <div class="form-group">
-        <?= Html::submitButton(Yii::t('app', 'Search'), ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton(Yii::t('app', 'Reset'), ['class' => 'btn btn-default']) ?>
+        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
+        <?= Html::resetButton('Reset', ['class' => 'btn btn-outline-secondary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

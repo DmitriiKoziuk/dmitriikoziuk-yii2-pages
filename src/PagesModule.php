@@ -1,31 +1,24 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace DmitriiKoziuk\yii2Pages;
 
-use Yii;
 use yii\di\Container;
+use yii\db\Connection;
 use yii\web\Application as WebApp;
 use yii\base\Application as BaseApp;
 use yii\console\Application as ConsoleApp;
-use DmitriiKoziuk\yii2Base\BaseModule;
-use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
-use DmitriiKoziuk\yii2Base\helpers\FileHelper;
 use DmitriiKoziuk\yii2ModuleManager\interfaces\ModuleInterface;
 use DmitriiKoziuk\yii2ConfigManager\ConfigManagerModule;
-use DmitriiKoziuk\yii2CustomUrls\CustomUrlsModule;
-use DmitriiKoziuk\yii2CustomUrls\services\UrlIndexService;
-use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
+use DmitriiKoziuk\yii2UrlIndex\UrlIndexModule;
+use DmitriiKoziuk\yii2UrlIndex\services\UrlIndexService;
 use DmitriiKoziuk\yii2Pages\services\PageService;
+use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
 
 class PagesModule extends \yii\base\Module implements ModuleInterface
 {
     const ID = 'dk-pages';
 
     const TRANSLATE = self::ID;
-
-    const CONTENT_STORAGE_PATH = '@frontend' . DIRECTORY_SEPARATOR .
-        'storage' . DIRECTORY_SEPARATOR .
-        'dk-pages' . DIRECTORY_SEPARATOR .
-        'content';
 
     const FRONTEND_CONTROLLER_NAME = 'page';
 
@@ -35,6 +28,11 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
      * @var Container
      */
     public $diContainer;
+
+    /**
+     * @var Connection
+     */
+    public $dbConnection;
 
     /**
      * Overwrite this param if you backend app id is different from default.
@@ -52,9 +50,9 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
     {
         /** @var BaseApp $app */
         $app = $this->module;
-        $this->_initLocalProperties($app);
-        $this->_registerTranslation($app);
-        $this->_registerClassesToDIContainer($app);
+        $this->initLocalProperties($app);
+        $this->registerTranslation($app);
+        $this->registerClassesToDIContainer($app);
     }
 
     public static function getId(): string
@@ -70,9 +68,8 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
     public static function requireOtherModulesToBeActive(): array
     {
         return [
-            BaseModule::class,
             ConfigManagerModule::class,
-            CustomUrlsModule::class,
+            UrlIndexModule::class,
         ];
     }
 
@@ -80,7 +77,7 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
      * @param BaseApp $app
      * @throws \InvalidArgumentException
      */
-    private function _initLocalProperties(BaseApp $app): void
+    private function initLocalProperties(BaseApp $app): void
     {
         if (empty($this->backendAppId)) {
             throw new \InvalidArgumentException('Property backendAppId not set.');
@@ -101,7 +98,7 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
         }
     }
 
-    private function _registerTranslation(BaseApp $app): void
+    private function registerTranslation(BaseApp $app): void
     {
         $app->i18n->translations[self::TRANSLATE] = [
             'class'          => 'yii\i18n\PhpMessageSource',
@@ -110,25 +107,17 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
         ];
     }
 
-    private function _registerClassesToDIContainer(BaseApp $app): void
+    private function registerClassesToDIContainer(BaseApp $app): void
     {
-        $this->diContainer->setSingleton(PageRepository::class);
-        $this->diContainer->setSingleton(PageService::class, function () use ($app) {
-            /** @var PageRepository $pageRepository */
-            $pageRepository = $this->diContainer->get(PageRepository::class);
-            /** @var UrlHelper $urlHelper */
-            $urlHelper = $this->diContainer->get(UrlHelper::class);
-            /** @var FileHelper $fileHelper */
-            $fileHelper = $this->diContainer->get(FileHelper::class);
-            /** @var UrlIndexService $urlService */
-            $urlService = $this->diContainer->get(UrlIndexService::class);
+        /** @var UrlIndexService $urlIndexService */
+        $urlIndexService = $this->diContainer->get(UrlIndexService::class);
+        $this->diContainer->setSingleton(PageService::class, function () use (
+            $urlIndexService
+        ) {
             return new PageService(
-                Yii::getAlias(self::CONTENT_STORAGE_PATH),
-                $pageRepository,
-                $urlHelper,
-                $fileHelper,
-                $urlService,
-                $app->db
+                new PageRepository(),
+                $urlIndexService,
+                $this->dbConnection
             );
         });
     }

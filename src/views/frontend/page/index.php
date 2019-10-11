@@ -1,12 +1,14 @@
 <?php
 
+use yii\web\View;
+use DmitriiKoziuk\yii2Pages\forms\PageUpdateForm;
+
 /**
- * @var $this \yii\web\View
- * @var $pageEntity \DmitriiKoziuk\yii2Pages\entities\PageEntity
+ * @var $this View
+ * @var $page PageUpdateForm
  */
 
-$this->title = $pageEntity->getMetaTitle();
-$this->registerMetaTag(['name' => 'description', 'content' => $pageEntity->getMetaDescription()]);
-$this->registerLinkTag(['rel' => 'canonical', 'href' => $pageEntity->getUrl()]);
+$this->title = $page->meta_title;
+$this->registerMetaTag(['name' => 'meta_description', 'content' => $page->meta_description]);
 
-echo $pageEntity->getContent();
+echo $page->content;
