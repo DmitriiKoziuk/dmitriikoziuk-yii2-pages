@@ -1,209 +1,187 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace DmitriiKoziuk\yii2Pages\services;
 
 use yii\db\Connection;
 use DmitriiKoziuk\yii2Base\helpers\UrlHelper;
-use DmitriiKoziuk\yii2Base\helpers\FileHelper;
 use DmitriiKoziuk\yii2Base\services\DBActionService;
-use DmitriiKoziuk\yii2CustomUrls\services\UrlIndexService;
-use DmitriiKoziuk\yii2CustomUrls\forms\UrlCreateForm;
-use DmitriiKoziuk\yii2CustomUrls\forms\UrlUpdateForm;
-use DmitriiKoziuk\yii2CustomUrls\forms\UrlDeleteForm;
+use DmitriiKoziuk\yii2Base\traits\ModelValidatorTrait;
+use DmitriiKoziuk\yii2Base\exceptions\DataNotValidException;
+use DmitriiKoziuk\yii2Base\exceptions\ExternalComponentException;
+use DmitriiKoziuk\yii2UrlIndex\forms\UrlCreateForm;
+use DmitriiKoziuk\yii2UrlIndex\forms\UrlUpdateForm;
+use DmitriiKoziuk\yii2UrlIndex\forms\RemoveEntityForm;
+use DmitriiKoziuk\yii2UrlIndex\forms\UpdateEntityUrlForm;
+use DmitriiKoziuk\yii2UrlIndex\interfaces\UrlIndexServiceInterface;
 use DmitriiKoziuk\yii2Pages\PagesModule;
+use DmitriiKoziuk\yii2Pages\exceptions\PageCreateFormNotValid;
+use DmitriiKoziuk\yii2Pages\exceptions\PageNotFoundException;
+use DmitriiKoziuk\yii2Pages\exceptions\PageUpdateFormNotValidException;
+use DmitriiKoziuk\yii2Pages\interfaces\PageRepositoryInterface;
+use DmitriiKoziuk\yii2Pages\interfaces\PageServiceInterface;
 use DmitriiKoziuk\yii2Pages\entities\PageEntity;
-use DmitriiKoziuk\yii2Pages\forms\PageInputForm;
-use DmitriiKoziuk\yii2Pages\records\PageRecord;
-use DmitriiKoziuk\yii2Pages\repositories\PageRepository;
+use DmitriiKoziuk\yii2Pages\forms\PageCreateForm;
+use DmitriiKoziuk\yii2Pages\forms\PageUpdateForm;
 
-final class PageService extends DBActionService
+class PageService extends DBActionService implements PageServiceInterface
 {
-    /**
-     * @var string
-     */
-    private $_contentStoragePath;
+    use ModelValidatorTrait;
 
     /**
-     * @var PageRepository
+     * @var PageRepositoryInterface
      */
-    private $_pageRepository;
+    private $pageRepository;
 
     /**
-     * @var UrlHelper
+     * @var UrlIndexServiceInterface
      */
-    private $_urlHelper;
-
-    /**
-     * @var FileHelper
-     */
-    private $_fileHelper;
-
-    /**
-     * @var UrlIndexService
-     */
-    private $_urlIndexService;
+    private $urlIndexService;
 
     public function __construct(
-        string $contentStoragePath,
-        PageRepository $pageRepository,
-        UrlHelper $urlHelper,
-        FileHelper $fileHelper,
-        UrlIndexService $urlIndexService,
-        Connection $db
+        PageRepositoryInterface $pageRepository,
+        UrlIndexServiceInterface $urlIndexService,
+        Connection $db = null
     ) {
         parent::__construct($db);
-        $this->_contentStoragePath = $contentStoragePath;
-        $this->_pageRepository = $pageRepository;
-        $this->_urlHelper = $urlHelper;
-        $this->_fileHelper = $fileHelper;
-        $this->_urlIndexService = $urlIndexService;
+        $this->pageRepository = $pageRepository;
+        $this->urlIndexService = $urlIndexService;
     }
 
-    public function createPage(PageInputForm $pageInputForm): PageEntity
+    /**
+     * @param PageCreateForm $pageCreateForm
+     * @return PageUpdateForm
+     * @throws DataNotValidException
+     * @throws ExternalComponentException
+     * @throws \Exception
+     */
+    public function createPage(PageCreateForm $pageCreateForm): PageUpdateForm
     {
-        $pageRecord = new PageRecord();
-        $pageRecord = $this->_savePage($pageRecord, $pageInputForm);
-        return new PageEntity($pageRecord, $pageInputForm->content);
-    }
+        $this->validateModels(
+            [$pageCreateForm],
+            new PageCreateFormNotValid('Page create form not valid.')
+        );
 
-    public function updatePage(int $pageId, PageInputForm $pageInputForm): PageEntity
-    {
-        $pageRecord = $this->_getPageRecordById($pageId);
-        $this->_savePage($pageRecord, $pageInputForm);
-        return new PageEntity($pageRecord, $pageInputForm->content);
-    }
-
-    public function deletePage(int $id): void
-    {
-        $this->beginTransaction();
         try {
-            $pageRecord = $this->_getPageRecordById($id);
-            $pageRecord->delete();
-            $this->_deletePageContent($pageRecord->id);
-            $urlDeleteForm = new UrlDeleteForm(['url' => $pageRecord->url]);
-            $this->_urlIndexService->deleteUrlFromIndex($urlDeleteForm);
+            $this->beginTransaction();
+            $pageEntity = $this->savePage($pageCreateForm);
+            $this->addPageUrlToIndex($pageEntity->name, $pageEntity->id);
             $this->commitTransaction();
-        } catch (\Throwable $e) {
-            $this->rollbackTransaction();
-        }
-    }
-
-    public function getPageById(int $id): PageEntity
-    {
-        $pageRecord = $this->_getPageRecordById($id);
-        $content = $this->_getPageContent($pageRecord->id);
-        return new PageEntity($pageRecord, $content);
-    }
-
-    private function _getPageRecordById(int $pageId): PageRecord
-    {
-        $pageRecord = $this->_pageRepository->getById($pageId);
-        if (empty($pageRecord)) {
-            throw new \Exception('Page Record not found.');
-        }
-        return $pageRecord;
-    }
-
-    public function _savePage(PageRecord $pageRecord, PageInputForm $pageInputForm): PageRecord
-    {
-        $this->beginTransaction();
-        try {
-            $isNewRecord = $pageRecord->isNewRecord;
-            $pageRecord->setAttributes($pageInputForm->getAttributes());
-            $this->_defineSlug($pageRecord);
-            $this->_defineUrl($pageRecord);
-            $this->_defineMetaTitle($pageRecord);
-            $this->_defineMetaDescription($pageRecord);
-            $changedAttributes = $pageRecord->getDirtyAttributes();
-            $this->_pageRepository->save($pageRecord);
-            $this->_savePageContent($pageRecord->id, $pageInputForm->content);
-            $this->_updatePageUrlInIndex($isNewRecord, $changedAttributes, $pageRecord);
-            $this->commitTransaction();
-            return $pageRecord;
-        } catch (\Throwable $e) {
+            return new PageUpdateForm($pageEntity->getAttributes());
+        } catch (\Exception $e) {
             $this->rollbackTransaction();
             throw $e;
         }
     }
 
-    private function _defineSlug(PageRecord $pageRecord): void
+    /**
+     * @param int $pageId
+     * @throws ExternalComponentException
+     * @throws PageNotFoundException
+     * @throws \Throwable
+     */
+    public function deletePage(int $pageId): void
     {
-        if (empty($pageRecord->slug)) {
-            $pageRecord->slug = $this->_urlHelper->getSlugFromString($pageRecord->name);
+        $pageEntity = PageEntity::find()
+            ->where(['id' => $pageId])
+            ->one();
+
+        if (empty($pageEntity)) {
+            throw new PageNotFoundException("Page with id '{$pageId}' not found.");
+        }
+
+        try {
+            $this->beginTransaction();
+            $pageEntity->delete();
+            $this->removePageUrlFromIndex($pageEntity->id);
+            $this->commitTransaction();
+        } catch (\Exception $e) {
+            $this->rollbackTransaction();
+            throw $e;
         }
     }
 
-    private function _defineUrl(PageRecord $pageRecord): void
+    public function updatePage(PageUpdateForm $pageUpdateForm): PageUpdateForm
     {
-        if (empty($pageRecord->url)) {
-            $pageRecord->url = '/' . $pageRecord->slug;
+        $this->validateModels(
+            [$pageUpdateForm],
+            new PageUpdateFormNotValidException('Page update form not valid.')
+        );
+
+        $pageEntity = $this->pageRepository->getPageById($pageUpdateForm->id);
+        if (is_null($pageEntity)) {
+            throw new PageNotFoundException("Page with id '{$pageUpdateForm->id}' not found. Nothing to update.");
         }
+
+        try {
+            $this->beginTransaction();
+            $pageEntity->setAttributes(
+                $pageUpdateForm->getAttributes(
+                    null,
+                    ['id', 'created_at', 'updated_at']
+                )
+            );
+            $this->pageRepository->save($pageEntity);
+            $this->updatePageUrlInIndex($pageEntity->name, $pageEntity->id);
+            $this->commitTransaction();
+        } catch (\Exception $e) {
+            $this->rollbackTransaction();
+            throw $e;
+        }
+
+        return $pageUpdateForm;
     }
 
-    private function _defineMetaTitle(PageRecord $pageRecord): void
+    /**
+     * @param int $pageId
+     * @return PageUpdateForm
+     * @throws PageNotFoundException
+     */
+    public function getPageById(int $pageId): PageUpdateForm
     {
-        if (empty($pageRecord->meta_title)) {
-            $pageRecord->meta_title = $pageRecord->name;
+        $pageEntity = $this->pageRepository->getPageById($pageId);
+        if (is_null($pageEntity)) {
+            throw new PageNotFoundException("Page with id '{$pageId}' not found. Nothing to update.");
         }
+
+        return new PageUpdateForm($pageEntity->getAttributes());
     }
 
-    private function _defineMetaDescription(PageRecord $pageRecord): void
+    private function savePage(PageCreateForm $pageCreateForm): PageEntity
     {
-        if (empty($pageRecord->meta_description)) {
-            $pageRecord->meta_description = $pageRecord->name;
-        }
+        $pageEntity = new PageEntity($pageCreateForm->getAttributes());
+        $this->pageRepository->save($pageEntity);
+        return $pageEntity;
     }
 
-    private function _updatePageUrlInIndex(
-        bool $isPageNewRecord,
-        array $changedAttributes,
-        PageRecord $pageRecord
-    ): void {
-        if ($isPageNewRecord) {
-            $form = new UrlCreateForm();
-        } else {
-            $form = new UrlUpdateForm();
-        }
-        $form->url = $pageRecord->url;
+    private function addPageUrlToIndex(string $pageName, int $pageId): UrlUpdateForm
+    {
+        $urlCreateForm = new UrlCreateForm();
+        $urlCreateForm->url = '/' . UrlHelper::getSlugFromString($pageName);
+        $urlCreateForm->module_name = PagesModule::ID;
+        $urlCreateForm->controller_name = PagesModule::FRONTEND_CONTROLLER_NAME;
+        $urlCreateForm->action_name = PagesModule::FRONTEND_CONTROLLER_ACTION;
+        $urlCreateForm->entity_id = (string) $pageId;
+        return $this->urlIndexService->addUrl($urlCreateForm);
+    }
+
+    private function removePageUrlFromIndex(int $pageId): void
+    {
+        $form = new RemoveEntityForm();
         $form->module_name = PagesModule::ID;
         $form->controller_name = PagesModule::FRONTEND_CONTROLLER_NAME;
         $form->action_name = PagesModule::FRONTEND_CONTROLLER_ACTION;
-        $form->entity_id = (string) $pageRecord->id;
-        if ($isPageNewRecord) {
-            $this->_urlIndexService->addUrlToIndex($form);
-        } else if (array_key_exists('url', $changedAttributes)) {
-            $this->_urlIndexService->updateUrlInIndex($form);
-        }
+        $form->entity_id = (string) $pageId;
+        $this->urlIndexService->removeEntityUrl($form);
     }
 
-    private function _getPageContent(int $pageId): string
+    private function updatePageUrlInIndex(string $pageName, int $pageId): UrlUpdateForm
     {
-        $file = $this->_getPageContentFilePath($pageId);
-        if (file_exists($file)) {
-            return file_get_contents($file);
-        } else {
-            return '';
-        }
-    }
-
-    private function _savePageContent(int $pageId, string $content): void
-    {
-        $file = $this->_getPageContentFilePath($pageId);
-        file_put_contents($file, $content);
-    }
-
-    private function _deletePageContent(int $pageId): void
-    {
-        $file = $this->_getPageContentFilePath($pageId);
-        if (file_exists($file)) {
-            unlink($file);
-        }
-    }
-
-    private function _getPageContentFilePath(int $pageId): string
-    {
-        $fileDirectory = $this->_contentStoragePath;
-        $this->_fileHelper->createDirectoryIfNotExist($fileDirectory);
-        $file = $fileDirectory . DIRECTORY_SEPARATOR . $pageId . '.txt';
-        return $file;
+        $form = new UpdateEntityUrlForm();
+        $form->url = '/' . UrlHelper::getSlugFromString($pageName);
+        $form->module_name = PagesModule::ID;
+        $form->controller_name = PagesModule::FRONTEND_CONTROLLER_NAME;
+        $form->action_name = PagesModule::FRONTEND_CONTROLLER_ACTION;
+        $form->entity_id = (string) $pageId;
+        return $this->urlIndexService->updateEntityUrl($form);
     }
 }

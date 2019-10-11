@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace DmitriiKoziuk\yii2Pages\migrations;
 
 use yii\db\Migration;
@@ -16,30 +17,19 @@ class m190122_143041_create_dk_pages_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->pagesTable, [
-            'id' => $this->primaryKey(),
-            'name' => $this->string(150)->notNull(),
-            'slug' => $this->string(165)->notNull(),
-            'url' => $this->string(200)->notNull(),
-            'is_active' => $this->boolean()->notNull()->defaultValue(0),
-            'meta_title' => $this->string(255)->notNull(),
-            'meta_description' => $this->string(255)->notNull(),
+            'id'               => $this->primaryKey(),
+            'name'             => $this->string(150)->notNull(),
+            'is_active'        => $this->boolean()->notNull()->defaultValue(0),
+            'meta_title'       => $this->string(255)->null()->defaultValue(NULL),
+            'meta_description' => $this->string(255)->null()->defaultValue(NULL),
+            'content'          => $this->text()->null()->defaultValue(NULL),
+            'created_at'       => $this->integer()->notNull(),
+            'updated_at'       => $this->integer()->notNull(),
         ]);
         $this->createIndex(
             'idx_dk_pages_name',
             $this->pagesTable,
             'name',
-            true
-        );
-        $this->createIndex(
-            'idx_dk_pages_slug',
-            $this->pagesTable,
-            'slug',
-            true
-        );
-        $this->createIndex(
-            'idx_dk_pages_url',
-            $this->pagesTable,
-            'url',
             true
         );
     }

@@ -1,30 +1,37 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DmitriiKoziuk\yii2Pages\controllers\backend;
 
 use Yii;
-use yii\base\Module;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use DmitriiKoziuk\yii2Pages\records\PageRecordSearch;
-use DmitriiKoziuk\yii2Pages\forms\PageInputForm;
+use DmitriiKoziuk\yii2Base\exceptions\DataNotValidException;
+use DmitriiKoziuk\yii2Base\exceptions\ExternalComponentException;
+use DmitriiKoziuk\yii2Pages\entities\PageEntity;
+use DmitriiKoziuk\yii2Pages\entities\PageEntitySearch;
+use DmitriiKoziuk\yii2Pages\forms\PageCreateForm;
 use DmitriiKoziuk\yii2Pages\services\PageService;
+use DmitriiKoziuk\yii2Pages\exceptions\PageNotFoundException;
 
 /**
  * PageController implements the CRUD actions for Page model.
  */
-final class PageController extends Controller
+class PageController extends Controller
 {
-    private $_pageService;
+    /**
+     * @var PageService
+     */
+    private $pageService;
 
     public function __construct(
-        string $id,
-        Module $module,
+        $id,
+        $module,
         PageService $pageService,
-        array $config = []
+        $config = []
     ) {
         parent::__construct($id, $module, $config);
-        $this->_pageService = $pageService;
+        $this->pageService = $pageService;
     }
 
     /**
@@ -48,7 +55,7 @@ final class PageController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new PageRecordSearch();
+        $searchModel = new PageEntitySearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -61,53 +68,87 @@ final class PageController extends Controller
      * Displays a single Page model.
      * @param integer $id
      * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionView($id)
     {
         return $this->render('view', [
-            'pageEntity' => $this->_pageService->getPageById($id),
+            'model' => $this->findModel($id),
         ]);
     }
 
+    /**
+     * Creates a new Page model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     * @throws DataNotValidException
+     * @throws ExternalComponentException
+     */
     public function actionCreate()
     {
-        $pageInputForm = new PageInputForm();
-        if (
-            Yii::$app->request->isPost &&
-            $pageInputForm->load(Yii::$app->request->post()) &&
-            $pageInputForm->validate()
-        ) {
-            $pageEntity = $this->_pageService->createPage($pageInputForm);
-            return $this->redirect(['view', 'id' => $pageEntity->getId()]);
+        $model = new PageCreateForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            $pageUpdateForm = $this->pageService->createPage($model);
+            return $this->redirect(['view', 'id' => $pageUpdateForm->id]);
         }
+
         return $this->render('create', [
-            'pageInputForm' => $pageInputForm,
+            'model' => $model,
         ]);
     }
 
+    /**
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws PageNotFoundException
+     */
     public function actionUpdate($id)
     {
-        $pageInputForm = new PageInputForm();
-        if (
-            Yii::$app->request->isPost &&
-            $pageInputForm->load(Yii::$app->request->post()) &&
-            $pageInputForm->validate()
-        ) {
-            $pageEntity = $this->_pageService->updatePage($id, $pageInputForm);
-            return $this->redirect(['view', 'id' => $pageEntity->getId()]);
-        } else {
-            $pageEntity = $this->_pageService->getPageById($id);
-            $pageInputForm = $pageEntity->getInputForm();
+        try {
+            $model = $this->pageService->getPageById((int) $id);
+        } catch (PageNotFoundException $e) {
+            throw new NotFoundHttpException("Page with id '{$id}' not found.");
         }
+
+        if ($model->load(Yii::$app->request->post())) {
+            $model = $this->pageService->updatePage($model);
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
         return $this->render('update', [
-            'pageInputForm' => $pageInputForm,
-            'pageEntity' => $pageEntity,
+            'model' => $model,
         ]);
     }
 
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws ExternalComponentException
+     * @throws PageNotFoundException
+     * @throws \Throwable
+     */
     public function actionDelete($id)
     {
-        $this->_pageService->deletePage($id);
+        $this->pageService->deletePage((int) $id);
+
         return $this->redirect(['index']);
+    }
+
+    /**
+     * Finds the Page model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return PageEntity the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = PageEntity::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

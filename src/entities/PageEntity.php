@@ -1,67 +1,82 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace DmitriiKoziuk\yii2Pages\entities;
 
-use DmitriiKoziuk\yii2Pages\forms\PageInputForm;
-use DmitriiKoziuk\yii2Pages\records\PageRecord;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+use DmitriiKoziuk\yii2Pages\PagesModule;
+use DmitriiKoziuk\yii2UrlIndex\entities\UrlEntity;
 
-class PageEntity
+/**
+ * This is the model class for table "{{%dk_pages}}".
+ *
+ * @property int    $id
+ * @property string $name
+ * @property int    $is_active
+ * @property string $meta_title
+ * @property string $meta_description
+ * @property string $content
+ * @property int    $created_at
+ * @property int    $updated_at
+ *
+ * @property UrlEntity $url
+ */
+class PageEntity extends ActiveRecord
 {
     /**
-     * @var PageRecord
+     * {@inheritdoc}
      */
-    private $_pageRecord;
+    public static function tableName()
+    {
+        return '{{%dk_pages}}';
+    }
+
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::class,
+        ];
+    }
 
     /**
-     * @var string
+     * {@inheritdoc}
      */
-    private $_content;
-
-    public function __construct(PageRecord $pageRecord, string $content)
+    public function rules()
     {
-        $this->_pageRecord = $pageRecord;
-        $this->_content = $content;
+        return [
+            [['name'], 'required'],
+            [['is_active'], 'integer'],
+            [['content'], 'string'],
+            [['name'], 'string', 'max' => 150],
+            [['meta_title', 'meta_description'], 'string', 'max' => 255],
+            [['name'], 'unique'],
+            [['created_at', 'updated_at'], 'integer'],
+        ];
     }
 
-    public function getId(): string
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
     {
-        return $this->_pageRecord->id;
+        return [
+            'id' => 'ID',
+            'name' => 'Name',
+            'is_active' => 'Is Active',
+            'meta_title' => 'Meta Title',
+            'meta_description' => 'Meta Description',
+            'content' => 'Content',
+        ];
     }
 
-    public function getName(): string
+    public function getUrl(): ActiveQuery
     {
-        return $this->_pageRecord->name;
-    }
-
-    public function getSlug(): string
-    {
-        return $this->_pageRecord->slug;
-    }
-
-    public function getUrl(): string
-    {
-        return $this->_pageRecord->url;
-    }
-
-    public function getContent(): string
-    {
-        return $this->_content;
-    }
-
-    public function getMetaTitle(): string
-    {
-        return $this->_pageRecord->meta_title;
-    }
-
-    public function getMetaDescription(): string
-    {
-        return $this->_pageRecord->meta_description;
-    }
-
-    public function getInputForm(): PageInputForm
-    {
-        $pageInputForm = new PageInputForm();
-        $pageInputForm->setAttributes($this->_pageRecord->getAttributes());
-        $pageInputForm->content = $this->_content;
-        return $pageInputForm;
+        return $this->hasOne(UrlEntity::class, ['entity_id' => 'id'])
+            ->andWhere([
+                'module_name'     => PagesModule::ID,
+                'controller_name' => PagesModule::FRONTEND_CONTROLLER_NAME,
+                'action_name'     => PagesModule::FRONTEND_CONTROLLER_ACTION,
+            ]);
     }
 }

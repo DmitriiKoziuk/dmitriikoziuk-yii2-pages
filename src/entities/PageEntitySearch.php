@@ -1,14 +1,15 @@
 <?php
 
-namespace DmitriiKoziuk\yii2Pages\records;
+namespace DmitriiKoziuk\yii2Pages\entities;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use DmitriiKoziuk\yii2Pages\entities\PageEntity;
 
 /**
- * PageSearch represents the model behind the search form of `DmitriiKoziuk\yii2Pages\records\Page`.
+ * PageSearch represents the model behind the search form of `DmitriiKoziuk\yii2Pages\entities\Page`.
  */
-class PageRecordSearch extends PageRecord
+class PageEntitySearch extends PageEntity
 {
     /**
      * {@inheritdoc}
@@ -17,7 +18,7 @@ class PageRecordSearch extends PageRecord
     {
         return [
             [['id', 'is_active'], 'integer'],
-            [['name', 'slug', 'url', 'meta_title', 'meta_description'], 'safe'],
+            [['name', 'meta_title', 'meta_description', 'content'], 'safe'],
         ];
     }
 
@@ -39,7 +40,7 @@ class PageRecordSearch extends PageRecord
      */
     public function search($params)
     {
-        $query = PageRecord::find();
+        $query = PageEntity::find();
 
         // add conditions that should always apply here
 
@@ -62,10 +63,9 @@ class PageRecordSearch extends PageRecord
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'slug', $this->slug])
-            ->andFilterWhere(['like', 'url', $this->url])
             ->andFilterWhere(['like', 'meta_title', $this->meta_title])
-            ->andFilterWhere(['like', 'meta_description', $this->meta_description]);
+            ->andFilterWhere(['like', 'meta_description', $this->meta_description])
+            ->andFilterWhere(['like', 'content', $this->content]);
 
         return $dataProvider;
     }
