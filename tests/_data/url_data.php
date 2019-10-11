@@ -17,7 +17,7 @@ return [
         'updated_at' => '1392559490',
     ],
     [
-        'id' => 1,
+        'id' => 2,
         'url' => '/Not-active-page',
         'redirect_to_url' => null,
         'module_name' => PagesModule::ID,
