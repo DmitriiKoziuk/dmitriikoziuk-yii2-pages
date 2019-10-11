@@ -8,6 +8,7 @@ use yii\web\Application as WebApp;
 use yii\base\Application as BaseApp;
 use yii\console\Application as ConsoleApp;
 use DmitriiKoziuk\yii2ModuleManager\interfaces\ModuleInterface;
+use DmitriiKoziuk\yii2ModuleManager\ModuleManager;
 use DmitriiKoziuk\yii2ConfigManager\ConfigManagerModule;
 use DmitriiKoziuk\yii2UrlIndex\UrlIndexModule;
 use DmitriiKoziuk\yii2UrlIndex\services\UrlIndexService;
@@ -68,6 +69,7 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
     public static function requireOtherModulesToBeActive(): array
     {
         return [
+            ModuleManager::class,
             ConfigManagerModule::class,
             UrlIndexModule::class,
         ];
@@ -94,7 +96,10 @@ class PagesModule extends \yii\base\Module implements ModuleInterface
             $this->viewPath = '@DmitriiKoziuk/yii2Pages/views/frontend';
         }
         if ($app instanceof ConsoleApp) {
-            $app->controllerMap['migrate']['migrationNamespaces'][] = __NAMESPACE__ . '\migrations';
+            array_push(
+                $app->controllerMap['migrate']['migrationNamespaces'],
+                __NAMESPACE__ . '\migrations'
+            );
         }
     }
 
